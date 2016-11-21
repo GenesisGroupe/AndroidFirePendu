@@ -3,14 +3,17 @@ package com.genesisgroupe.firependu;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
+
+import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 import android.view.View;
-import android.view.Menu;
-import android.view.MenuItem;
+import android.widget.Button;
+import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.Toast;
 
+import com.firebase.ui.database.FirebaseListAdapter;
+import com.genesisgroupe.firependu.model.Game;
 import com.google.android.gms.auth.api.Auth;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
@@ -24,23 +27,31 @@ import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.GoogleAuthProvider;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 
-public class MainActivity extends AppCompatActivity implements GoogleApiClient.OnConnectionFailedListener{
+public class MainActivity extends FragmentActivity implements GoogleApiClient.OnConnectionFailedListener,View.OnClickListener{
 
     private GoogleApiClient mGoogleApiClient;
 
     private static final int RC_SIGN_IN = 765;
 
     SignInButton signInButton;
+    Button disconnectButton;
 
     private FirebaseAuth mAuth;
+    private DatabaseReference mDatabase;
+
+
+    private ListView gameListView;
+
+   private FirebaseListAdapter<Game> mAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
+
         String token = getString(R.string.default_web_client_id_2);
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
                 .requestIdToken(token)
@@ -53,19 +64,34 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
                 .build();
 
         signInButton = (SignInButton) findViewById(R.id.sign_in_button);
-        signInButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                signIn();
-            }
-        });
+        disconnectButton = (Button) findViewById(R.id.disconnect_button);
+        gameListView = (ListView) findViewById(R.id.gameListView);
+
+        signInButton.setOnClickListener(this);
+        disconnectButton.setOnClickListener(this);
+
 
         mAuth = FirebaseAuth.getInstance();
+        mDatabase = FirebaseDatabase.getInstance().getReference();
+
+        mAdapter = new FirebaseListAdapter<Game>(this, Game.class, android.R.layout.two_line_list_item, mDatabase.child("Games")) {
+            @Override
+            protected void populateView(View view, Game game, int position) {
+                ((TextView)view.findViewById(android.R.id.text1)).setText(game.getName());
+                ((TextView)view.findViewById(android.R.id.text2)).setText(game.getName());
+
+            }
+        };
+        gameListView.setAdapter(mAdapter);
 
     }
- private void signIn() {
+    private void signIn() {
         Intent signInIntent = Auth.GoogleSignInApi.getSignInIntent(mGoogleApiClient);
         startActivityForResult(signInIntent, RC_SIGN_IN);
+    }
+
+    private void signOut() {
+        Auth.GoogleSignInApi.signOut(mGoogleApiClient);
     }
 
     @Override
@@ -89,7 +115,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
 
     @Override
     public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
-        Toast.makeText(MainActivity.this, "listener"+connectionResult.getErrorMessage(),
+        Toast.makeText(MainActivity.this, "listener" + connectionResult.getErrorMessage(),
                 Toast.LENGTH_SHORT).show();
     }
 
@@ -111,30 +137,21 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
                             Toast.makeText(MainActivity.this, "Authentication failed.",
                                     Toast.LENGTH_SHORT).show();
                         }
+                        mAdapter.notifyDataSetChanged();
                     }
                 });
     }
 
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_main, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
+    public void onClick(View v) {
+        switch (v.getId()) {
+            case R.id.disconnect_button:
+                Toast.makeText(this,"disconnect",Toast.LENGTH_SHORT).show();
+                signOut();
+                break;
+            case R.id.sign_in_button:
+                signIn();
+                break;
         }
-
-        return super.onOptionsItemSelected(item);
     }
+
 }
