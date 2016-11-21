@@ -7,6 +7,7 @@ import android.support.annotation.NonNull;
 import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -30,7 +31,7 @@ import com.google.firebase.auth.GoogleAuthProvider;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
-public class MainActivity extends FragmentActivity implements GoogleApiClient.OnConnectionFailedListener,View.OnClickListener{
+public class MainActivity extends FragmentActivity implements GoogleApiClient.OnConnectionFailedListener,View.OnClickListener,AdapterView.OnItemLongClickListener{
 
     private GoogleApiClient mGoogleApiClient;
 
@@ -83,7 +84,7 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.On
             }
         };
         gameListView.setAdapter(mAdapter);
-
+        gameListView.setOnItemLongClickListener(this);
     }
     private void signIn() {
         Intent signInIntent = Auth.GoogleSignInApi.getSignInIntent(mGoogleApiClient);
@@ -154,4 +155,10 @@ public class MainActivity extends FragmentActivity implements GoogleApiClient.On
         }
     }
 
+    @Override
+    public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+        Game game = mAdapter.getItem(position);
+        mDatabase.child("Games").child(game.getName()).removeValue();
+        return true;
+    }
 }

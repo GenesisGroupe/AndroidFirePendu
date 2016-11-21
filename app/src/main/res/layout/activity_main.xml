@@ -19,10 +19,20 @@
         android:layout_alignParentRight="true"
         android:text="déconnexion"/>
 
-
+    <TextView
+        android:id="@+id/textView"
+        android:layout_below="@+id/sign_in_button"
+        android:layout_width="match_parent"
+        android:textAlignment="center"
+        android:textStyle="bold"
+        android:layout_height="wrap_content"
+        android:text="La liste des parties"
+        android:textSize="25sp"
+        android:layout_marginTop="10dp"
+        android:layout_marginBottom="10dp"/>
     <ListView
         android:id="@+id/gameListView"
-        android:layout_below="@+id/sign_in_button"
+        android:layout_below="@+id/textView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
 
