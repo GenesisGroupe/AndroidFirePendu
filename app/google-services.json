@@ -1,0 +1,42 @@
+{
+  "project_info": {
+    "project_number": "922070511837",
+    "firebase_url": "https://firependu.firebaseio.com",
+    "project_id": "firependu",
+    "storage_bucket": "firependu.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:922070511837:android:85f4587ba641d7c5",
+        "android_client_info": {
+          "package_name": "com.genesisgroupe.firependu"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "922070511837-ul6fmt1ucjc4v5jg6a4eui5a5o4asdkl.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDK4m2hcgJ-rRy13nDNqZFmr8RFWymYizw"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
