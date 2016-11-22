@@ -202,6 +202,9 @@ public class GameFragment extends Fragment {
             // Finally, add the drawable background to TextView
             letterTV.setBackground(sd);
 
+            if((game.getPlayedLetters().contains(letterTV.getText()))){
+                letterTV.setTextColor(Color.RED);
+            }
             if( (game.getPlayedLetters().contains(String.valueOf(ch))) ||
                     (game.isFinished())||
                     (!game.isMyTurn())){
@@ -218,6 +221,7 @@ public class GameFragment extends Fragment {
                         Turn newTurn = new Turn();
                         newTurn.setLetter(letter);
                         newTurn.setUser(FirebaseAuth.getInstance().getCurrentUser().getUid());
+                        newTurn.setId(String.valueOf(game.getTurns().size()));
                         game.addTurn(newTurn);
                         mDatabase.child("Games").child(game.getId()).setValue(game);
                     }
