@@ -1,8 +1,10 @@
 package com.genesisgroupe.firependu.Fragment;
 
 
+import android.app.ActionBar;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
@@ -11,13 +13,13 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.Button;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.firebase.ui.database.FirebaseListAdapter;
 import com.genesisgroupe.firependu.GameSelectedI;
-import com.genesisgroupe.firependu.MainActivity;
 import com.genesisgroupe.firependu.R;
 import com.genesisgroupe.firependu.WordGenerator;
 import com.genesisgroupe.firependu.model.Game;
@@ -29,17 +31,15 @@ import com.google.android.gms.auth.api.signin.GoogleSignInResult;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.SignInButton;
 import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthCredential;
-import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
 
-public class MainFragment extends Fragment implements GoogleApiClient.OnConnectionFailedListener,View.OnClickListener,AdapterView.OnItemLongClickListener,AdapterView.OnItemClickListener{
+public class MainFragment extends Fragment implements GoogleApiClient.OnConnectionFailedListener, View.OnClickListener, AdapterView.OnItemLongClickListener, AdapterView.OnItemClickListener {
 
     private GoogleApiClient mGoogleApiClient;
 
@@ -58,6 +58,7 @@ public class MainFragment extends Fragment implements GoogleApiClient.OnConnecti
     private FirebaseListAdapter<Game> mAdapter;
 
     private GameSelectedI gameSelectedInterface;
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -70,7 +71,7 @@ public class MainFragment extends Fragment implements GoogleApiClient.OnConnecti
                 .requestEmail()
                 .build();
 
-        if(mGoogleApiClient == null){
+        if (mGoogleApiClient == null) {
             mGoogleApiClient = new GoogleApiClient.Builder(getActivity())
                     .enableAutoManage(getActivity(), this)
                     .addApi(Auth.GOOGLE_SIGN_IN_API, gso)
@@ -95,17 +96,41 @@ public class MainFragment extends Fragment implements GoogleApiClient.OnConnecti
         mAuth.addAuthStateListener(new FirebaseAuth.AuthStateListener() {
             @Override
             public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
-                if(firebaseAuth.getCurrentUser() != null){
-                    mAdapter = new  FirebaseListAdapter<Game>(getActivity(), Game.class, android.R.layout.test_list_item, mDatabase.child("Games")) {
+                if (firebaseAuth.getCurrentUser() != null) {
+                    mAdapter = new FirebaseListAdapter<Game>(getActivity(), Game.class, android.R.layout.two_line_list_item, mDatabase.child("Games")) {
+
                         @Override
                         protected void populateView(View view, Game game, int position) {
+
+                            FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
                             ((TextView) view.findViewById(android.R.id.text1)).setText(game.getName());
+                            TextView tv2 = (TextView) view.findViewById(android.R.id.text2);
+                            if ((game.getGuest() == null) ||
+                                    (game.getGuest().getUid().equals(currentUser.getUid())) ||
+                                    (game.getHost().getUid().equals(currentUser.getUid()))
+                                    ) {
+                                if(game.isMyTurn()){
+                                    tv2.setText("votre tour");
+                                    tv2.setBackgroundColor(Color.GREEN);
+                                }else{
+                                    tv2.setText("A l'adversaire");
+                                    tv2.setBackgroundColor(Color.BLUE);
+                                }
+
+                            } else {
+                                tv2.setText("INDISPONIBLE");
+                                tv2.setBackgroundColor(Color.RED);
+                            }
+                            LinearLayout.LayoutParams llp = new LinearLayout.LayoutParams(ActionBar.LayoutParams.WRAP_CONTENT, ActionBar.LayoutParams.WRAP_CONTENT);
+                            llp.setMargins(0, 0, 0, 50); // llp.setMargins(left, top, right, bottom);
+                            tv2.setLayoutParams(llp);
+
 
                         }
                     };
                     gameListView.setAdapter(mAdapter);
-                }else{
-                    if(mAdapter != null){
+                } else {
+                    if (mAdapter != null) {
                         mAdapter.cleanup();
                     }
                     gameListView.setAdapter(null);
@@ -140,7 +165,7 @@ public class MainFragment extends Fragment implements GoogleApiClient.OnConnecti
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.disconnect_button:
-                Toast.makeText(getActivity(),"disconnect",Toast.LENGTH_SHORT).show();
+                Toast.makeText(getActivity(), "disconnect", Toast.LENGTH_SHORT).show();
                 signOut();
                 break;
             case R.id.sign_in_button:
@@ -198,7 +223,7 @@ public class MainFragment extends Fragment implements GoogleApiClient.OnConnecti
         mAuth.signInWithCredential(credential);
     }
 
-    public void addGame(){
+    public void addGame() {
         User me = new User();
         me.setName(FirebaseAuth.getInstance().getCurrentUser().getDisplayName());
         me.setUid(FirebaseAuth.getInstance().getCurrentUser().getUid());
