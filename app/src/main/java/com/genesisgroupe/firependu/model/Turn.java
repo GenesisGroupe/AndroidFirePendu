@@ -7,7 +7,7 @@ public class Turn {
 
     private String letter;
 
-    private User user;
+    private String user;
 
     public Turn(){
 
@@ -21,11 +21,11 @@ public class Turn {
         this.letter = letter;
     }
 
-    public User getUser() {
+    public String getUser() {
         return user;
     }
 
-    public void setUser(User user) {
+    public void setUser(String user) {
         this.user = user;
     }
 }

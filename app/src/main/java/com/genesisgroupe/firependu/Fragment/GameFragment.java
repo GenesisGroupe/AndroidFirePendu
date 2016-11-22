@@ -19,6 +19,7 @@ import android.widget.TextView;
 import com.genesisgroupe.firependu.R;
 import com.genesisgroupe.firependu.model.Game;
 import com.genesisgroupe.firependu.model.Turn;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -54,7 +55,7 @@ public class GameFragment extends Fragment {
 
         Bundle args = new Bundle();
 
-        args.putString(GAME_ID_EXTRA, game.getName());
+        args.putString(GAME_ID_EXTRA, game.getId());
 
         newFragment.setArguments(args);
 
@@ -107,8 +108,10 @@ public class GameFragment extends Fragment {
     private void reset() {
         if (game != null) {
             titleTV.setText(game.getName());
-            player1TV.setText("Joueur 1 :"+game.getScorePlayer1());
-            player2TV.setText("Joueur 2 :"+game.getScorePlayer2());
+
+            player1TV.setText( game.getHost().getName()+" : " +game.getScorePlayer1());
+            player2TV.setText( game.getGuest().getName()+" : " +game.getScorePlayer2());
+
             if(game.isFinished()){
                 tourTV.setText("Partie terminée");
                 tourTV.setTextColor(Color.BLACK);
@@ -193,7 +196,8 @@ public class GameFragment extends Fragment {
             letterTV.setBackground(sd);
 
             if( (game.getPlayedLetters().contains(String.valueOf(ch))) ||
-                    (game.isFinished())){
+                    (game.isFinished())||
+                    (!game.isMyTurn())){
                 letterTV.setEnabled(false);
             }else{
                 letterTV.setClickable(true);
@@ -206,9 +210,9 @@ public class GameFragment extends Fragment {
 
                         Turn newTurn = new Turn();
                         newTurn.setLetter(letter);
-
+                        newTurn.setUser(FirebaseAuth.getInstance().getCurrentUser().getUid());
                         game.addTurn(newTurn);
-                        mDatabase.child("Games").child(game.getName()).setValue(game);
+                        mDatabase.child("Games").child(game.getId()).setValue(game);
                     }
                 });
             }

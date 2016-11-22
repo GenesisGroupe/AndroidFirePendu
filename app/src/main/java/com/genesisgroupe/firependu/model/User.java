@@ -4,26 +4,28 @@ package com.genesisgroupe.firependu.model;
  * Created by alex on 21/11/2016.
  */
 public class User {
-    private String nickName;
-    private Integer score;
+
+    private String name;
+
+    private String uid;
 
     public User() {
 
     }
 
-    public Integer getScore() {
-        return score;
+    public String getName() {
+        return name;
     }
 
-    public void setScore(Integer score) {
-        this.score = score;
+    public void setName(String name) {
+        this.name = name;
     }
 
-    public String getNickName() {
-        return nickName;
+    public String getUid() {
+        return uid;
     }
 
-    public void setNickName(String nickName) {
-        this.nickName = nickName;
+    public void setUid(String uid) {
+        this.uid = uid;
     }
 }

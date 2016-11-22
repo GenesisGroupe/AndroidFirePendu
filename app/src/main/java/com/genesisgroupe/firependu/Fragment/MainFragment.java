@@ -19,7 +19,9 @@ import com.firebase.ui.database.FirebaseListAdapter;
 import com.genesisgroupe.firependu.GameSelectedI;
 import com.genesisgroupe.firependu.MainActivity;
 import com.genesisgroupe.firependu.R;
+import com.genesisgroupe.firependu.WordGenerator;
 import com.genesisgroupe.firependu.model.Game;
+import com.genesisgroupe.firependu.model.User;
 import com.google.android.gms.auth.api.Auth;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
@@ -48,6 +50,7 @@ public class MainFragment extends Fragment implements GoogleApiClient.OnConnecti
 
     private FirebaseAuth mAuth;
     private DatabaseReference mDatabase;
+    private Button addButton;
 
 
     private ListView gameListView;
@@ -78,6 +81,8 @@ public class MainFragment extends Fragment implements GoogleApiClient.OnConnecti
         signInButton = (SignInButton) mainView.findViewById(R.id.sign_in_button);
         disconnectButton = (Button) mainView.findViewById(R.id.disconnect_button);
         gameListView = (ListView) mainView.findViewById(R.id.gameListView);
+        addButton = (Button) mainView.findViewById(R.id.addButton);
+        addButton.setText("Créer une partie");
 
         signInButton.setOnClickListener(this);
         disconnectButton.setOnClickListener(this);
@@ -110,6 +115,7 @@ public class MainFragment extends Fragment implements GoogleApiClient.OnConnecti
             }
         });
 
+        addButton.setOnClickListener(this);
 
         gameListView.setOnItemLongClickListener(this);
         gameListView.setOnItemClickListener(this);
@@ -139,6 +145,9 @@ public class MainFragment extends Fragment implements GoogleApiClient.OnConnecti
                 break;
             case R.id.sign_in_button:
                 signIn();
+                break;
+            case R.id.addButton:
+                addGame();
                 break;
         }
     }
@@ -187,5 +196,23 @@ public class MainFragment extends Fragment implements GoogleApiClient.OnConnecti
 
         AuthCredential credential = GoogleAuthProvider.getCredential(acct.getIdToken(), null);
         mAuth.signInWithCredential(credential);
+    }
+
+    public void addGame(){
+        User me = new User();
+        me.setName(FirebaseAuth.getInstance().getCurrentUser().getDisplayName());
+        me.setUid(FirebaseAuth.getInstance().getCurrentUser().getUid());
+
+        Game game = new Game();
+        game.setHost(me);
+
+        WordGenerator wg = new WordGenerator();
+        game.setWord(wg.getWord());
+
+        game.setName("Un partie créée par Android");
+        String key = FirebaseDatabase.getInstance().getReference().child("Games").push().getKey();
+        game.setId(key);
+        FirebaseDatabase.getInstance().getReference().child("Games").child(key).setValue(game);
+
     }
 }

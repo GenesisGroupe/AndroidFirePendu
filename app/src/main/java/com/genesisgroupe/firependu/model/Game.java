@@ -1,5 +1,6 @@
 package com.genesisgroupe.firependu.model;
 
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.Exclude;
 import com.google.firebase.database.IgnoreExtraProperties;
 
@@ -16,26 +17,21 @@ public class Game {
 
     private String name;
 
-    private List<User> users;
+    private User host;
+
+    private User guest;
+
+    private String id;
+
+    private String word;
 
     private List<Turn> turns;
 
     public Game() {
-        this.users = new ArrayList<User>();
+        this.host = null;
+        this.guest = null;
         this.turns = new ArrayList<Turn>();
 
-        Turn turn = new Turn();
-        turn.setLetter("a");
-        turns.add(turn);
-
-        Turn turn2 = new Turn();
-        turn2.setLetter("d");
-        turns.add(turn2);
-
-
-        Turn turn3 = new Turn();
-        turn3.setLetter("l");
-        turns.add(turn3);
     }
 
     public String getName() {
@@ -43,21 +39,10 @@ public class Game {
         return name;
     }
 
-    public String getWord(){
-        return "alphabet";
-    }
-
     public void setName(String name) {
         this.name = name;
     }
 
-    public List<User> getUsers() {
-        return users;
-    }
-
-    public void setUsers(List<User> users) {
-        this.users = users;
-    }
 
     public List<Turn> getTurns() {
         return turns;
@@ -73,8 +58,11 @@ public class Game {
 
     @Exclude
     public boolean isMyTurn() {
-        Random random = new Random();
-        return random.nextBoolean();
+        if(getTurns().isEmpty()){
+            return (getHost().getUid().equals(FirebaseAuth.getInstance().getCurrentUser().getUid()));
+        }
+        Turn lastTurn = getTurns().get(getTurns().size() - 1);
+        return (!lastTurn.getUser().equals(FirebaseAuth.getInstance().getCurrentUser().getUid()));
     }
 
     @Exclude
@@ -91,16 +79,86 @@ public class Game {
 
     @Exclude
     public Integer getScorePlayer1(){
-        return 5;
+        int score =0;
+        for(Turn turn:getTurns()){
+            if(getWord().contains(String.valueOf(turn.getLetter()))){
+                if (turn.getUser().equals(getHost().getUid())){
+                    score++;
+                    for(Character a:getWord().toCharArray()){
+                        if(!getPlayedLetters().contains(String.valueOf(a))){
+                            return score;
+                        }
+                    }
+                    score += 2;
+                }
+            }
+        }
+
+        return score;
     }
 
     @Exclude
     public Integer getScorePlayer2(){
-        return 6;
+        int score =0;
+        for(Turn turn:getTurns()){
+            if(getWord().contains(String.valueOf(turn.getLetter()))){
+                if (turn.getUser().equals(getGuest().getUid())){
+                    score++;
+                    for(Character a:getWord().toCharArray()){
+                        if(!getPlayedLetters().contains(String.valueOf(a))){
+                            return score;
+                        }
+                    }
+                    score += 2;
+                }
+            }
+        }
+
+        return score;
     }
 
     @Exclude
     public boolean isFinished(){
-        return false;
+        for(char letter:getWord().toCharArray()){
+            if(!getPlayedLetters().contains(String.valueOf(letter))){
+                return false;
+            }
+        }
+        return true;
+    }
+
+    public User getHost() {
+        return host;
+    }
+
+    public void setHost(User host) {
+        this.host = host;
+    }
+
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
+
+    public User getGuest() {
+        return guest;
+    }
+
+    public void setGuest(User guest) {
+        this.guest = guest;
+    }
+
+    public void setWord(String word) {
+        this.word = word;
+    }
+
+
+    public String getWord(){
+        return word;
     }
 }

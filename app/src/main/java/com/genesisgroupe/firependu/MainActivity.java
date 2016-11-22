@@ -9,6 +9,10 @@ import android.support.v4.app.FragmentTransaction;
 import com.genesisgroupe.firependu.Fragment.GameFragment;
 import com.genesisgroupe.firependu.Fragment.MainFragment;
 import com.genesisgroupe.firependu.model.Game;
+import com.genesisgroupe.firependu.model.User;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.FirebaseDatabase;
 
 public class MainActivity extends FragmentActivity implements GameSelectedI {
 
@@ -34,7 +38,13 @@ public class MainActivity extends FragmentActivity implements GameSelectedI {
     @Override
     public void onGameSelected(Game game) {
         GameFragment mainFragment = GameFragment.newInstance(game);
+        FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
+        User me = new User();
+        me.setUid(currentUser.getUid());
+        me.setName(currentUser.getDisplayName());
 
+        game.setGuest(me);
+        FirebaseDatabase.getInstance().getReference().child("Games").child(game.getId()).setValue(game);
         FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
 
         transaction.addToBackStack("random2");
