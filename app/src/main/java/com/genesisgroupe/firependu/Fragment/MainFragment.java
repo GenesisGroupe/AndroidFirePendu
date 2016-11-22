@@ -71,11 +71,17 @@ public class MainFragment extends Fragment implements GoogleApiClient.OnConnecti
                 .requestEmail()
                 .build();
 
+
         if (mGoogleApiClient == null) {
-            mGoogleApiClient = new GoogleApiClient.Builder(getActivity())
-                    .enableAutoManage(getActivity(), this)
-                    .addApi(Auth.GOOGLE_SIGN_IN_API, gso)
-                    .build();
+            try {
+
+                mGoogleApiClient = new GoogleApiClient.Builder(getActivity())
+                        .enableAutoManage(getActivity(), this)
+                        .addApi(Auth.GOOGLE_SIGN_IN_API, gso)
+                        .build();
+            } catch (Exception e) {
+
+            }
         }
 
 
@@ -109,10 +115,10 @@ public class MainFragment extends Fragment implements GoogleApiClient.OnConnecti
                                     (game.getGuest().getUid().equals(currentUser.getUid())) ||
                                     (game.getHost().getUid().equals(currentUser.getUid()))
                                     ) {
-                                if(game.isMyTurn()){
+                                if (game.isMyTurn()) {
                                     tv2.setText("votre tour");
                                     tv2.setBackgroundColor(Color.GREEN);
-                                }else{
+                                } else {
                                     tv2.setText("A l'adversaire");
                                     tv2.setBackgroundColor(Color.BLUE);
                                 }

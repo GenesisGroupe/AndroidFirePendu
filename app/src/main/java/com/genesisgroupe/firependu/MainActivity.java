@@ -49,8 +49,9 @@ public class MainActivity extends FragmentActivity implements GameSelectedI {
             User me = new User();
             me.setUid(currentUser.getUid());
             me.setName(currentUser.getDisplayName());
-
-            game.setGuest(me);
+            if(!game.getHost().getUid().equals(currentUser.getUid())){
+                game.setGuest(me);
+            }
             FirebaseDatabase.getInstance().getReference().child("Games").child(game.getId()).setValue(game);
             FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
 

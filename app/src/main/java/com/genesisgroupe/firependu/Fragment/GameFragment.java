@@ -110,7 +110,14 @@ public class GameFragment extends Fragment {
             titleTV.setText(game.getName());
 
             player1TV.setText( game.getHost().getName()+" : " +game.getScorePlayer1());
-            player2TV.setText( game.getGuest().getName()+" : " +game.getScorePlayer2());
+            if(game.getGuest() != null){
+
+                player2TV.setText( game.getGuest().getName()+" : " +game.getScorePlayer2());
+            }else {
+
+                player2TV.setText( "en attente de joueur");
+            }
+
 
             if(game.isFinished()){
                 tourTV.setText("Partie terminée");

@@ -35,6 +35,16 @@
         android:layout_below="@+id/textView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
+    <ListView
+        android:id="@+id/gameListView2"
+        android:layout_below="@+id/gameListView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+    <ListView
+        android:id="@+id/gameListView3"
+        android:layout_below="@+id/textView2"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
 
     <Button
         android:layout_width="wrap_content"
